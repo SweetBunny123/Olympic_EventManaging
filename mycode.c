@@ -136,11 +136,11 @@ int addEvent(char *venueName, char *location, int date, int fromHour, int toHour
     }
     Event* current = venue->calendar[date-1];
     while (current) {
-        if ((fromHour < current->endHour && toHour > current->startHour) ||
-            (current->startHour < toHour && current->endHour > fromHour)) {
+        if ((current->startHour <= fromHour) || (fromHour <= current->startHour && current->endHour <= toHour)
+            (fromHour> current->startHour)) {
             printf("-1\nError: time slot already occupied\n");
             return -1;
-        }// if the event is already in the venue then it will return -1
+        }
         current = current->next;
     }
     Event* newEvent = (Event*)malloc(sizeof(Event));
@@ -151,12 +151,23 @@ int addEvent(char *venueName, char *location, int date, int fromHour, int toHour
     strcpy(newEvent->name, eventName);
     newEvent->startHour = fromHour;
     newEvent->endHour = toHour;
-    newEvent->next = venue->calendar[date-1];
-
+    newEvent->next = NULL;
+    // again i will start from beginning of the list for a particular date of a venue
     if(!venue->calendar[date-1] || fromHour < venue->calendar[date-1]->startHour)
     {
         newEvent->next = venue->calendar[date-1];
-        
+        venue->calendar[date-1] = newEvent;
+        // make this one first event of the list
+    }
+    else
+    {
+        // i will need to find the pisition of the event in the list
+        current = venue->calendar[date-1];
+        while (current->next && current->next->startHour < fromHour) {
+            current = current->next;
+        }
+        newEvent->next = current->next;
+        current->next = newEvent;
     }
 
 }// 4. delete event
