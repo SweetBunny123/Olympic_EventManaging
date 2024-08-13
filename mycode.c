@@ -50,7 +50,7 @@ int addVenue(char *name, char *location, int capacity)
     Venue *newVenue = (Venue*)malloc(sizeof(Venue));
     if(newVenue == NULL)
     {
-        printf("-1\nError:\n");
+        printf("-1\nError\n");
         return -1;
     }
     // i will add the venue name and location and capacity first to inidiviual venue
@@ -76,7 +76,7 @@ int addVenue(char *name, char *location, int capacity)
             current = current->next;
         }
         if (current && strcmp(name, current->name) == 0) {
-            printf("-1\nError:\n");
+            printf("-1\nError\n");
             free(newVenue);
             return -1;// if venue already exists, i wont create a new venue and free the venue created and memory
         }
@@ -108,7 +108,7 @@ int deleteVenue(char *name)
     }
     if(!current)
     {
-        printf("-1\nError:\n");
+        printf("-1\nError\n");
         return -1;
     }
     else
@@ -146,26 +146,26 @@ int addEvent(char *venueName, int date, int fromHour, int toHour, char *eventNam
 {
     //precaution invalid dates and hours
     if (date < 1 || date > MAX_DAYS || fromHour < 0 || toHour > MAX_HOURS || fromHour >= toHour) {
-        printf("-1\nError:\n");
+        printf("-1\nError\n");
         return -1;
     }
     // to add an event i will need to find the venue if it exits and then add the event to the venue
     Venue* venue = findVenue(venueName);//findVenue should return the pointer to venue if it exits and null if it doesnt
     if (!venue) {
-        printf("-1\nError:\n");
+        printf("-1\nError\n");
         return -1;
     }
     Event* current = venue->calendar[date-1];
     while (current) {
         if ((toHour <= current->endHour && toHour >= current->startHour)||(fromHour <= current->endHour && fromHour >= current->startHour)) {
-            printf("-1\nError:\n");
+            printf("-1\nError\n");
             return -1;
         }
         current = current->next;
     }
     Event* newEvent = (Event*)malloc(sizeof(Event));
     if (!newEvent) {
-        printf("-1\nError:\n");// if the memory is not allocated then it will return -1
+        printf("-1\nError\n");// if the memory is not allocated then it will return -1
         return -1;
     }
     strcpy(newEvent->name, eventName);
@@ -196,13 +196,13 @@ int addEvent(char *venueName, int date, int fromHour, int toHour, char *eventNam
 int deleteEvent(char *venueName, int date, int fromHour, char *eventName)
 {
     if (date < 1 || date > MAX_DAYS || fromHour < 0 || fromHour >= MAX_HOURS) {
-        printf("-1\nError:\n");
+        printf("-1\nError\n");
         return -1;
     }
     Venue* venue = findVenue(venueName);
     if(!venue)
     {
-        printf("-1\nError:\n");
+        printf("-1\nError\n");
         return -1;
     }
     Event* current = venue->calendar[date-1];
@@ -212,7 +212,7 @@ int deleteEvent(char *venueName, int date, int fromHour, char *eventName)
         current = current->next;
     }
     if (!current) {
-        printf("-1\nError:\n", date, fromHour);
+        printf("-1\nError\n");
         return -1;
     }
     if(prev)
@@ -236,7 +236,7 @@ void showEvents(char* venueName, int date)
 {
     Venue* venue = findVenue(venueName);
     if (!venue) {
-        printf("-1\nError:\n");
+        printf("-1\nError\n");
         return;
     }
     int count = 0;
@@ -256,7 +256,7 @@ void showEvents(char* venueName, int date)
 void showCalendar(char* venueName) {
     Venue* venue = findVenue(venueName);
     if (!venue) {
-        printf("-1\nError:\n");
+        printf("-1\nError\n");
         return;
     }
 
@@ -308,13 +308,13 @@ int main() {
             if (sscanf(input, "%*s \"%[^\"]\" \"%[^\"]\" %d", name, location, &capacity) == 3) {
                 addVenue(name, location, capacity);
             } else {
-                printf("-1\nError:\n");
+                printf("-1\nError\n");
             }
         } else if (strcmp(command, "delVenue") == 0) {
             if (sscanf(input, "%*s \"%[^\"]\"", name) == 1) {
                 deleteVenue(name);
             } else {
-                printf("-1\nError:\n");
+                printf("-1\nError\n");
             }
         } else if (strcmp(command, "showVenues") == 0) {
             showVenues();
@@ -322,28 +322,28 @@ int main() {
             if (sscanf(input, "%*s \"%[^\"]\" %d %d %d \"%[^\"]\"", name, &date, &fromHour, &toHour, eventName) == 5) {
                 addEvent(name, date, fromHour, toHour, eventName);
             } else {
-                printf("-1\nError:\n");
+                printf("-1\nError\n");
             }
         } else if (strcmp(command, "delEvent") == 0) {
             if (sscanf(input, "%*s \"%[^\"]\" %d %d \"%[^\"]\"", name, &date, &fromHour, eventName) == 4) {
                 deleteEvent(name, date, fromHour, eventName);
             } else {
-                printf("-1\nError:\n");
+                printf("-1\nError\n");
             }
         } else if (strcmp(command, "showEvents") == 0) {
             if (sscanf(input, "%*s \"%[^\"]\" %d", name, &date) == 2) {
                 showEvents(name, date);
             } else {
-                printf("-1\nError:\n");
+                printf("-1\nError\n");
             }
         } else if (strcmp(command, "showCalendar") == 0) {
             if (sscanf(input, "%*s \"%[^\"]\"", name) == 1) {
                 showCalendar(name);
             } else {
-                printf("-1\nError:\n");
+                printf("-1\nError\n");
             }
         } else {
-            printf("-1\nError:\n");
+            printf("-1\nError\n");
         }
     }
 
