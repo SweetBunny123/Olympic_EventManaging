@@ -11,13 +11,6 @@
 #define MAX_EVENTS_PER_DAY 24
 // so what can be done here? 
 // before all that i neeed to make a struct for the venue and the event
-/**
- * Represents an event with a start and end time.
- *
- * @param name The name of the event.
- * @param startHour The start hour of the event (0-23).
- * @param endHour The end hour of the event (0-23).
- */
 typedef struct Event {
     char name[MAX_NAME_LENGTH];
     int startHour;
@@ -50,7 +43,7 @@ int addVenue(char *name, char *location, int capacity)
     Venue *newVenue = (Venue*)malloc(sizeof(Venue));
     if(newVenue == NULL)
     {
-        printf("-1\nError\n");
+        printf("-1\nError: Memory allocation failed for NewVenue. Unable to allocate required memory for the operation.\n");
         return -1;
     }
     // i will add the venue name and location and capacity first to inidiviual venue
@@ -63,23 +56,21 @@ int addVenue(char *name, char *location, int capacity)
     //check if venue already exists
     Venue *current = venueList;
     if
-        (!venueList || strcmp(name, venueList->name) < 0) {
-        /* The line `printf("This was occured");` is a debugging statement that is used to print a
-        message to the console. In this case, it seems like it was added for debugging purposes to
-        indicate that a certain condition was met during the execution of the `addVenue` function. */
-        // printf("This was occured");
+        (!venueList) {
         newVenue->next = venueList;
         venueList = newVenue;// if venueList is null then newVenue is the first venue
     }
     else{
-    while (current->next && strcmp(name, current->next->name) > 0) {
+    while (current->next && strcmp(name, current->next->name) != 0) {
             current = current->next;
         }
         if (current && strcmp(name, current->name) == 0) {
-            printf("-1\nError\n");
+            printf("-1\nError: Venue %s already exits \n", name);
             free(newVenue);
             return -1;// if venue already exists, i wont create a new venue and free the venue created and memory
         }
+        else{
+            while(current->next!=NULL)current = current->next;}
         newVenue->next = current->next;
         current->next = newVenue;
     }
@@ -108,7 +99,7 @@ int deleteVenue(char *name)
     }
     if(!current)
     {
-        printf("-1\nError\n");
+        printf("-1\nError:Venue %s doesn't exist\n", name);
         return -1;
     }
     else
@@ -146,26 +137,26 @@ int addEvent(char *venueName, int date, int fromHour, int toHour, char *eventNam
 {
     //precaution invalid dates and hours
     if (date < 1 || date > MAX_DAYS || fromHour < 0 || toHour > MAX_HOURS || fromHour >= toHour) {
-        printf("-1\nError\n");
+        printf("-1\nError: Invalid date / fromHour / toHour \n");
         return -1;
     }
     // to add an event i will need to find the venue if it exits and then add the event to the venue
     Venue* venue = findVenue(venueName);//findVenue should return the pointer to venue if it exits and null if it doesnt
     if (!venue) {
-        printf("-1\nError\n");
+        printf("-1\nError:Venue Doesn't exist.\n");
         return -1;
     }
     Event* current = venue->calendar[date-1];
     while (current) {
-        if ((toHour <= current->endHour && toHour >= current->startHour)||(fromHour <= current->endHour && fromHour >= current->startHour)) {
-            printf("-1\nError\n");
+        if ((toHour <= current->endHour && toHour > current->startHour)||(fromHour < current->endHour && fromHour >= current->startHour)||(fromHour<=current->startHour && toHour>current->endHour)) {
+            printf("-1\nError:Time slot overlaps with already existing events.\n");
             return -1;
         }
         current = current->next;
     }
     Event* newEvent = (Event*)malloc(sizeof(Event));
     if (!newEvent) {
-        printf("-1\nError\n");// if the memory is not allocated then it will return -1
+        printf("-1\nError:Memory allocation failed for NewEvent. Unable to allocate required memory for the operation.\n");// if the memory is not allocated then it will return -1
         return -1;
     }
     strcpy(newEvent->name, eventName);
@@ -181,7 +172,7 @@ int addEvent(char *venueName, int date, int fromHour, int toHour, char *eventNam
     }
     else
     {
-        // i will need to find the pisition of the event in the list
+        // i will need to find the position of the event in the list
         current = venue->calendar[date-1];
         while (current->next && current->next->startHour < fromHour) {
             current = current->next;
@@ -196,13 +187,13 @@ int addEvent(char *venueName, int date, int fromHour, int toHour, char *eventNam
 int deleteEvent(char *venueName, int date, int fromHour, char *eventName)
 {
     if (date < 1 || date > MAX_DAYS || fromHour < 0 || fromHour >= MAX_HOURS) {
-        printf("-1\nError\n");
+        printf("-1\nError: Invalid day / fromHour / toHour\n");
         return -1;
     }
     Venue* venue = findVenue(venueName);
     if(!venue)
     {
-        printf("-1\nError\n");
+        printf("-1\nError: Venue doesn't exist\n");
         return -1;
     }
     Event* current = venue->calendar[date-1];
@@ -212,7 +203,7 @@ int deleteEvent(char *venueName, int date, int fromHour, char *eventName)
         current = current->next;
     }
     if (!current) {
-        printf("-1\nError\n");
+        printf("-1\nError: Event doesn't exist.\n");
         return -1;
     }
     if(prev)
@@ -228,15 +219,13 @@ int deleteEvent(char *venueName, int date, int fromHour, char *eventName)
     free(current);//delete the required event
     printf("0\n");
     return 0;
-
 }
-
 // 5. show events
 void showEvents(char* venueName, int date)
 {
     Venue* venue = findVenue(venueName);
     if (!venue) {
-        printf("-1\nError\n");
+        printf("-1\nError: Venue doesn't exist.\n");
         return;
     }
     int count = 0;
@@ -256,7 +245,7 @@ void showEvents(char* venueName, int date)
 void showCalendar(char* venueName) {
     Venue* venue = findVenue(venueName);
     if (!venue) {
-        printf("-1\nError\n");
+        printf("-1\nError: Venue doesn't exist.\n");
         return;
     }
 
@@ -289,61 +278,77 @@ void showCalendar(char* venueName) {
 }
 
 
+
 int main() {
-    char command[20];
-    char input[256];
-    char name[MAX_NAME_LENGTH], location[MAX_LOCATION_LENGTH], eventName[MAX_NAME_LENGTH];
-    int capacity, date, fromHour, toHour;
-
     while (1) {
-        // printf("Please enter a command...\n");
-        if (fgets(input, sizeof(input), stdin) == NULL) break;
-        trim(input);
+        char inp[100];
+        if (scanf("%99s", inp) != 1) break;
 
-        if (strcmp(input, "End") == 0) break;
+        if (strcmp(inp, "End") == 0) {
+            break;
+        }
+        else if (strcmp(inp, "addVenue") == 0) {
+            char name[100], loc[100];
+            int cap;
 
-        sscanf(input, "%s", command);
-
-        if (strcmp(command, "addVenue") == 0) {
-            if (sscanf(input, "%*s \"%[^\"]\" \"%[^\"]\" %d", name, location, &capacity) == 3) {
-                addVenue(name, location, capacity);
+            if (scanf(" \"%99[^\"]\" \"%99[^\"]\" %d", name, loc, &cap) == 3) {
+                addVenue(name, loc, cap);
             } else {
-                printf("-1\nError\n");
+                printf("-1\nError: Invalid Input.\n");
             }
-        } else if (strcmp(command, "delVenue") == 0) {
-            if (sscanf(input, "%*s \"%[^\"]\"", name) == 1) {
+        }
+        else if (strcmp(inp, "delVenue") == 0) {
+            char name[100];
+            if (scanf(" \"%99[^\"]\"", name) == 1) {
                 deleteVenue(name);
             } else {
-                printf("-1\nError\n");
+                printf("-1\nError: Invalid Input.\n");
             }
-        } else if (strcmp(command, "showVenues") == 0) {
+        }
+        else if (strcmp(inp, "showVenues") == 0) {
             showVenues();
-        } else if (strcmp(command, "addEvent") == 0) {
-            if (sscanf(input, "%*s \"%[^\"]\" %d %d %d \"%[^\"]\"", name, &date, &fromHour, &toHour, eventName) == 5) {
-                addEvent(name, date, fromHour, toHour, eventName);
+        }
+        else if (strcmp(inp, "addEvent") == 0) {
+            char name[100], eventN[100];
+            int date, startH, toH;
+
+            if (scanf(" \"%99[^\"]\" %d %d %d \"%99[^\"]\"", name, &date, &startH, &toH, eventN) == 5) {
+                addEvent(name, date, startH, toH, eventN);
             } else {
-                printf("-1\nError\n");
+                printf("-1\nError: Invalid Input.\n");
             }
-        } else if (strcmp(command, "delEvent") == 0) {
-            if (sscanf(input, "%*s \"%[^\"]\" %d %d \"%[^\"]\"", name, &date, &fromHour, eventName) == 4) {
-                deleteEvent(name, date, fromHour, eventName);
+        }
+        else if (strcmp(inp, "delEvent") == 0) {
+            char name[100], eventN[100];
+            int date, startH;
+
+            if (scanf(" \"%99[^\"]\" %d %d \"%99[^\"]\"", name, &date, &startH, eventN) == 4) {
+                deleteEvent(name, date, startH, eventN);
             } else {
-                printf("-1\nError\n");
+                printf("-1\nError: Invalid Input.\n");
             }
-        } else if (strcmp(command, "showEvents") == 0) {
-            if (sscanf(input, "%*s \"%[^\"]\" %d", name, &date) == 2) {
+        }
+        else if (strcmp(inp, "showEvents") == 0) {
+            char name[100];
+            int date;
+
+            if (scanf(" \"%99[^\"]\" %d", name, &date) == 2) {
                 showEvents(name, date);
             } else {
-                printf("-1\nError\n");
+                printf("-1\nError: Invalid Input.\n");
             }
-        } else if (strcmp(command, "showCalendar") == 0) {
-            if (sscanf(input, "%*s \"%[^\"]\"", name) == 1) {
+        }
+        else if (strcmp(inp, "showCalendar") == 0) {
+            char name[100];
+
+            if (scanf(" \"%99[^\"]\"", name) == 1) {
                 showCalendar(name);
             } else {
-                printf("-1\nError\n");
+                printf("-1\nError: Invalid Input.\n");
             }
-        } else {
-            printf("-1\nError\n");
+        }
+        else {
+            printf("-1\nError: Invalid Input.\n");
         }
     }
 
