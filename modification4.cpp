@@ -9,7 +9,6 @@
 #include<chrono>
 using namespace std;
 
-string today = "2024-09-02";
 class Extractor
 {
 public:
@@ -33,11 +32,12 @@ public:
         getline(iss1, *country, ':');
     }
 
-
 };
 class Validator
 {
-    public:
+public:
+    Validator() {}
+
     static bool isLeap(int year)
     {
         if (year % 400 == 0)
@@ -83,142 +83,8 @@ class Validator
         return false; // Invalid date
     }
 
-    static int timediff(const string dateStr1, const string timeStr1, const string dateStr2, const string timeStr2){
-        // Parse date and time strings
-        istringstream dateStream1(dateStr1);
-        istringstream dateStream2(dateStr2);
-        istringstream timeStream1(timeStr1);
-        istringstream timeStream2(timeStr2);
-
-        int y1, m1, d1, h1, mi1, y2, m2, d2, h2, mi2;
-
-        tm tm1 = {};
-        tm tm2 = {};
-
-        char de1 = '-';
-        dateStream1 >> y1 >> de1 >> m1 >> de1 >> d1;
-        dateStream2 >> y2 >> de1 >> m2 >> de1 >> d2;
-
-        char de2 = ':';
-
-        timeStream1 >> h1 >> de2 >> mi1;
-        timeStream2 >> h2 >> de2 >> mi2;
-
-        tm1.tm_year = y1 - 1900;
-        tm1.tm_mon = m1 - 1;
-        tm1.tm_mday = d1;
-        tm1.tm_hour = h1;
-        tm1.tm_min = mi1;
-        tm2.tm_year = y2 - 1900;
-        tm2.tm_mon = m2 - 1;
-        tm2.tm_mday = d2;
-        tm2.tm_hour = h2;
-        tm2.tm_min = mi2;
-
-        // Convert to chrono::time_point
-        auto timePoint1 = chrono::system_clock::from_time_t(mktime(&tm1));
-        auto timePoint2 = chrono::system_clock::from_time_t(mktime(&tm2));
-
-        // Compute difference in minutes
-        auto duration = timePoint1 - timePoint2;
-        auto diffInMinutes = chrono::duration_cast<chrono::minutes>(duration).count();
-
-        return diffInMinutes;
-    }
-
-    static bool timebound(const string timeStr1, const string timeStr2){
-        istringstream timeStream1(timeStr1);
-        istringstream timeStream2(timeStr2);
-
-        int h1, mi1, h2, mi2;
-
-        tm tm1 = {};
-        tm tm2 = {};
-
-        char del = ':';
-
-        timeStream1 >> h1 >> del >> mi1;
-        timeStream2 >> h2 >> del >> mi2;
-
-        tm1.tm_hour = h1;
-        tm1.tm_min = mi1;
-        tm2.tm_hour = h2;
-        tm2.tm_min = mi2;
-
-        if (tm1.tm_hour < 0 || tm1.tm_hour > 24 || tm2.tm_hour < 0 || tm2.tm_hour > 24 || tm1.tm_min < 0 || tm1.tm_min > 59 || tm2.tm_min < 0 || tm2.tm_min > 59 || 
-            tm1.tm_min % 15 != 0 || tm2.tm_min % 15 != 0){
-                return false;
-            }
-        return true;
-    }
-
-    static bool isValidTime(const string startTimeStr, const string endTimeStr){
-        istringstream timeStream1(startTimeStr);
-        istringstream timeStream2(endTimeStr);
-
-        int h1, mi1, h2, mi2;
-
-        //tm1 is the tm object for start time, and tm2 is for end time
-        tm tm1 = {};
-        tm tm2 = {};
-
-        char del = ':';
-
-        timeStream1 >> h1 >> del >> mi1;
-        timeStream2 >> h2 >> del >> mi2;
-
-        tm1.tm_hour = h1;
-        tm1.tm_min = mi1;
-        tm2.tm_hour = h2;
-        tm2.tm_min = mi2;
-
-        //end time's hour can be 24, but only if minute is 00
-        if (tm2.tm_hour == 24){
-            //if minute is not 0, it is not valid time
-            if (tm2.tm_min != 0){
-                return false;
-            }
-
-            //if minute is 00, check if start time is valid
-            if (tm2.tm_min == 0){
-                if (tm1.tm_hour < 0 || tm1.tm_min > 59 || tm1.tm_hour > 24 || tm1.tm_min < 0){
-                    return false;
-                }
-            }
-        }
-
-        //if end time's hour is not 24, verify both start and end time the same way
-        if (tm2.tm_hour != 24){
-            if (tm1.tm_hour < 0 || tm1.tm_min > 59 || tm1.tm_hour > 24 || tm1.tm_min < 0 || tm2.tm_hour < 0 || tm2.tm_min > 59 || tm2.tm_hour > 24 || tm2.tm_min < 0){
-                return false;
-            }
-        }
-
-        return true;
-    }
 };
 
-
-
-class Program {
-public:
-    string cong_name;
-    string name;
-    string type;
-    string venue;
-    string venueLocation;
-    string date;
-    string startTime;
-    string endTime;
-    Program *next;
-    Venue *venueList;
-
-    Program(string& congName, string& eventName,string& type, string& venueName, 
-        string& venueLocation, string& date, string& start, string& end)
-        : cong_name(congName), name(eventName), type(type),venue(venueName), venueLocation(venueLocation),
-          date(date), startTime(start), endTime(end), next(nullptr) {
-    }
-};
 
 
 
@@ -232,19 +98,30 @@ public:
     string postalCode;
     string country;
     int capacity;
-    string congregation;
     Venue *next;
 
-    Venue(string& venueName, string& venueLocation,string& venue_type, string& venueCity, 
-        string& venueState, string& venuePostalCode, string& venueCountry, 
+    Venue(string& venueName, string& venueLocation, string& venue_type, string& venueCity, 
+          string& venueState, string& venuePostalCode, string& venueCountry, 
           int venueCapacity)
-        : name(venueName), location(venueLocation),type(venue_type), city(venueCity), state(venueState),
-          postalCode(venuePostalCode), country(venueCountry), capacity(venueCapacity),
-          congregation("None"), next(nullptr), events(nullptr) {
+        : name(venueName), location(venueLocation), type(venue_type), city(venueCity), 
+          state(venueState), postalCode(venuePostalCode), country(venueCountry), capacity(venueCapacity), next(nullptr) {
     }
 };
 
 
+class Program {
+public:
+    string name;
+    string type;
+    string startDate;
+    string endDate;
+    Program *next;
+    Venue *venueList;  // Add this line
+
+    Program(string& eventName, string& eventType, string& start, string& end)
+        : name(eventName), type(eventType), startDate(start), endDate(end), next(nullptr), venueList(nullptr) {  // Initialize venueList
+    }
+};
 
 //first my intention will be to create a congregation class that will have all the venues stored in it
 class Congregation {
@@ -255,18 +132,21 @@ public:
     string endDate;
     Congregation *next;
     Program* programList;
-
+    Venue* reservedVenueList;
 
     Congregation(string& congName, string& congType, string& start, string& end)
-        : name(congName), type(congType), startDate(start), endDate(end), next(nullptr), reservedVenues(nullptr) {
+        : name(congName), type(congType), startDate(start), endDate(end), next(nullptr), programList(nullptr), reservedVenueList(nullptr) {
     }
 };
+
+
+
 
 Venue *venueList= nullptr;
 Congregation* congregationHead= nullptr;
 Program *programHead = nullptr;
 
-    bool doesVenueExists(const string& name, const string& country) {
+    bool doesVenueExists( string& name,  string& country) {
         Venue* current = venueList;
         while (current != nullptr) {
             if (current->name == name && current->country == country) {
@@ -275,6 +155,16 @@ Program *programHead = nullptr;
             current = current->next;
         }
         return false;
+    }
+    Congregation* findCongregation( string& name) {
+        Congregation* current = congregationHead;
+        while (current != nullptr) {
+            if (current->name == name) {
+                return current;
+            }
+            current = current->next;
+        }
+        return nullptr;
     }
     // i am creating a add venue this 
     void addVenue(string& name, string& location, string& type, string& city, string& state, string& postalCode, string& country, int capacity)
@@ -285,7 +175,7 @@ Program *programHead = nullptr;
             cout << "0\n";
             return;
         }
-        if(doesVenueExist(name, country)) {
+        if(doesVenueExists(name, country)) {
             cout << "-1\nError\n";
             return;
         }
@@ -306,8 +196,9 @@ Program *programHead = nullptr;
         cout << "0\n";
         return;
     }
+
     // for show venues
-    void showVenues(string& city, string& state, string& country, string& postal, string& type = "NONE")
+    void showVenues(string& city, string& state, string& country, string& postal, string type = "NONE")
     {
         Venue* current = venueList;
         vector<Venue*> temp;
@@ -324,7 +215,6 @@ Program *programHead = nullptr;
             cout << "-1\nError\n";
             return;
         }
-
         while(current != nullptr) {
             bool match = false;
             if(city.empty() && state.empty() && postal.empty()) {
@@ -336,7 +226,6 @@ Program *programHead = nullptr;
             } else {
                 match = (current->city == city && current->state == state && current->country == country && current->postalCode == postal);
             }
-
             if(match && (type == "NONE" || current->type == type)) {
                 temp.push_back(current);
             }
@@ -350,7 +239,7 @@ Program *programHead = nullptr;
     }
 
     // if cong exists
-    bool congExists(const string& congName) {
+    bool congExists( string& congName) {
         Congregation* current = congregationHead;
         while (current != nullptr) {
             if (current->name == congName) {
@@ -363,7 +252,7 @@ Program *programHead = nullptr;
 
 
     void addCongregation(string& name, string& type, string& startDate, string& endDate) {
-    if(!(Validator::isValidDate(startDate) && Validator::isValidDate(endDate) && endDate >= startDate) || (endDate <= today || startDate < today))
+    if(!(Validator::isValidDate(startDate) && Validator::isValidDate(endDate)))
     {
         cout << "-1\nError\n";
         return;
@@ -398,7 +287,7 @@ Program *programHead = nullptr;
     cout << "0\n";
     }
 
-    void deleteCongregation(const string& congName) {
+    void deleteCongregation( string& congName) {
         if (congregationHead == nullptr) {
             cout << "-1\nError\n";
             return;
@@ -432,7 +321,6 @@ Program *programHead = nullptr;
             // Remove this program's venues
             Venue* venueCurrent = programCurrent->venueList;
             while (venueCurrent != nullptr) {
-                venueCurrent->congregation = "None";
                 Venue* toDeleteVenue = venueCurrent;
                 venueCurrent = venueCurrent->next;
                 delete toDeleteVenue;
@@ -447,20 +335,13 @@ Program *programHead = nullptr;
 
         cout << "0\n";
     }
-
-
-
-
-
-
-
-    void addProgram(const string& cong, const string& prog_name, const string& prog_type, const string& startDate, const string& endDate) {
+    void addProgram(string& cong,  string& prog_name,  string& prog_type,  string& startDate,  string& endDate) {
         Congregation* cong_ptr = findCongregation(cong);
         if(cong_ptr == nullptr) {
             cout << "-1\nError" << endl;
             return;
         }
-
+        
         string cong_type = cong_ptr->type;
         vector<string> valid_prog_types;
 
@@ -479,6 +360,7 @@ Program *programHead = nullptr;
             return;
         }
 
+
         if (find(valid_prog_types.begin(), valid_prog_types.end(), prog_type) == valid_prog_types.end()) {
             cout << "-1\nError" << endl;
             return;
@@ -489,7 +371,7 @@ Program *programHead = nullptr;
             return;
         }
 
-        Program* newProgram = new Program(cong, prog_name, prog_type, "", "", startDate, startDate, endDate);
+        Program* newProgram = new Program(prog_name, prog_type,startDate,endDate);
         if (cong_ptr->programList == nullptr) {
             cong_ptr->programList = newProgram;
         } else {
@@ -506,7 +388,7 @@ Program *programHead = nullptr;
 
     void showCongregation() {
         int count = 0;
-        Congregation* current = congHead;
+        Congregation* current = congregationHead;
         
         // Count the number of congregations
         while (current != nullptr) {
@@ -517,21 +399,18 @@ Program *programHead = nullptr;
         cout << count << endl;
         
         // Reset current to the head of the list
-        current = congHead;
+        current = congregationHead;
         
         // Print details of each congregation
         while (current != nullptr) {
-            cout << current->cong << " " << current->type << " " << current->startDate << " " << current->endDate << endl;
+            cout << current->name << " " << current->type << " " << current->startDate << " " << current->endDate << endl;
             current = current->next;
         }
         
         return;
     }
 
-
-
-
-
+    
     void reserveVenue(string &name, string &country, string& congregation, string& prog)
     {
     // Check if venue exists
@@ -547,7 +426,10 @@ Program *programHead = nullptr;
         return;
     }
 
+    // i will have to create a copy of the venue
+    Venue* venueCopy = new Venue(venue->name, venue->location, venue->type, venue->city, venue->state, venue->postalCode, venue->country, venue->capacity);
     // Check if congregation exists
+
     Congregation* cong_ptr = findCongregation(congregation);
     if (cong_ptr == nullptr) {
         cout << "-1\nError" << endl;
@@ -589,30 +471,49 @@ Program *programHead = nullptr;
     }
 
 
+
     // Check for time conflicts
-    for (Program* reserved_prog = venue->events; reserved_prog != nullptr; reserved_prog = reserved_prog->next) {
-        if ((prog_ptr->date >= reserved_prog->date && prog_ptr->date < reserved_prog->endTime) ||
-            (prog_ptr->endTime > reserved_prog->date && prog_ptr->endTime <= reserved_prog->endTime) ||
-            (prog_ptr->date <= reserved_prog->date && prog_ptr->endTime >= reserved_prog->endTime)) {
-            cout << "-1\nError" << endl;
-            return;
+    //I will have to go through every program and its venue if the venue matches it shouldn't overlap.
+    // Check for time conflicts
+    Program* current = cong_ptr->programList;
+    while (current != nullptr) {
+        Venue* currentVenue = current->venueList;
+        while (currentVenue != nullptr) {
+            if (currentVenue->name == venue->name) {
+                if ((prog_ptr->startDate >= current->startDate && prog_ptr->startDate < current->endDate) ||
+                    (prog_ptr->endDate > current->startDate && prog_ptr->endDate <= current->endDate) ||
+                    (prog_ptr->startDate <= current->startDate && prog_ptr->endDate >= current->endDate)) {
+                    cout << "-1\nError" << endl;
+                    return;
+                }
+            }
+            currentVenue = currentVenue->next;
         }
+        current = current->next;
     }
 
 
     // Reserve the venue
-    prog_ptr->venue = venue->name;
-    prog_ptr->venueLocation = venue->location;
-    
-    // Add program to venue's events
-    if (venue->events == nullptr) {
-        venue->events = prog_ptr;
+    if (prog_ptr->venueList == nullptr) {
+        prog_ptr->venueList = venueCopy;
     } else {
-        Program* current = venue->events;
+        Venue* current = prog_ptr->venueList;
         while (current->next != nullptr) {
             current = current->next;
         }
-        current->next = prog_ptr;
+        current->next = venueCopy;
+    }
+
+    // i will also have to add the venue to the venue list of the congregation
+    Venue* congVenueCopy = new Venue(venue->name, venue->location, venue->type, venue->city, venue->state, venue->postalCode, venue->country, venue->capacity);
+    if (cong_ptr->reservedVenueList == nullptr) {
+        cong_ptr->reservedVenueList = congVenueCopy;
+    } else {
+        Venue* current = cong_ptr->reservedVenueList;
+        while (current->next != nullptr) {
+            current = current->next;
+        }
+        current->next = congVenueCopy;
     }
 
     cout << "0" << endl;
@@ -656,116 +557,223 @@ void freeVenue(string &name, string &country, string& congregation, string& prog
     }
 
     // Check if the program is actually reserved at this venue
-    if (prog_ptr->venue != venue->name) {
-        cout << "-1\nError" << endl;
-        return;
-    }
-
-    // Remove the program from the venue's events
-    Program* prev_event = nullptr;
-    for (Program* event = venue->events; event != nullptr; prev_event = event, event = event->next) {
-        if (event == prog_ptr) {
-            if (prev_event == nullptr) {
-                venue->events = event->next;
-            } else {
-                prev_event->next = event->next;
-            }
+    bool venueFound = false;
+    for (Venue* currentVenue = prog_ptr->venueList; currentVenue != nullptr; currentVenue = currentVenue->next) {
+        if (currentVenue->name == venue->name && currentVenue->country == venue->country) {
+            venueFound = true;
             break;
         }
     }
 
-    // Clear the venue information from the program
-    prog_ptr->venue = "";
-    prog_ptr->venueLocation = "";
+    if (!venueFound) {
+        cout << "-1\nError" << endl;
+        return;
+    }
 
-    // If the venue has no more events, mark it as not reserved
-    if (venue->events == nullptr) {
-        venue->congregation = "None";
+
+    // Remove the venue from the program's venueList
+    Venue* prev = nullptr;
+    Venue* current = prog_ptr->venueList;
+    while (current != nullptr) {
+        if (current->name == name && current->country == country) {
+            if (prev == nullptr) {
+                prog_ptr->venueList = current->next;
+            } else {
+                prev->next = current->next;
+            }
+            delete current;
+            break;
+        }
+        prev = current;
+        current = current->next;
+    }
+
+    // Check if the venue is still reserved by any other program
+    bool venueReserved = false;
+    for (Program* currentProg = cong_ptr->programList; currentProg != nullptr; currentProg = currentProg->next) {
+        if (currentProg != prog_ptr) {
+            for (Venue* currentVenue = currentProg->venueList; currentVenue != nullptr; currentVenue = currentVenue->next) {
+                if (currentVenue->name == name && currentVenue->country == country) {
+                    venueReserved = true;
+                    break;
+                }
+            }
+            if (venueReserved) break;
+        }
+    }
+
+    // Remove the venue from the congregation's reservedVenueList only if it's not reserved by any other program
+    if (!venueReserved) {
+        prev = nullptr;
+        current = cong_ptr->reservedVenueList;
+        while (current != nullptr) {
+            if (current->name == name && current->country == country) {
+                if (prev == nullptr) {
+                    cong_ptr->reservedVenueList = current->next;
+                } else {
+                    prev->next = current->next;
+                }
+                delete current;
+                break;
+            }
+            prev = current;
+            current = current->next;
+        }
     }
 
     cout << "0" << endl;
 }
 
-    void showReservedVenues(const string cong)
-    {
-        //check if congregation exists
-        bool exists2;
-        int foundc;
-        exists2 = Congregations::congExists(cong, &foundc, congList);
-        //if congregation doesn't exist
-        if (!exists2){
-            cout << "-1\nError" << endl;
-            return;
+void deleteVenue(string &name, string &country)
+{
+    // Check if venue exists in venueList
+    Venue* prev = nullptr;
+    Venue* current = venueList;
+    while (current != nullptr) {
+        if (current->name == name && current->country == country) {
+            break;
         }
-        //if congregation exists, then printing the venues
-        if (exists2){
-            cout << congList[foundc].progList.size() << endl;
-            
-            //printing the programs at that congregation and its reservations
-            for (int i=0; i<congList[foundc].progList.size(); i++){
-                cout << congList[foundc].progList[i].prog << " " << congList[foundc].progList[i].type << " ";
+        prev = current;
+        current = current->next;
+    }
 
-                //go throught list of venues, count how many reserved for this prog and print the number and thier details
-                int count_of_reservations = 0;
-                for (int j=0; j<venList.size(); j++){
-                    if (venList[j].reserved){
-                        for (int k=0; k<venList[j].reservedProg.size(); k++){
-                            if (venList[j].reservedProg[k].prog == congList[foundc].progList[i].prog && venList[j].reservedProg[k].cong == cong){
-                                count_of_reservations++;
-                            }
-                        }
-                    }
-                }
-
-                cout << count_of_reservations << endl;
-
-                if (count_of_reservations > 0){
-                    for (int j=0; j<venList.size(); j++){
-                        if (venList[j].reserved){
-                            for (int k=0; k<venList[j].reservedProg.size(); k++){
-                                if (venList[j].reservedProg[k].prog == congList[foundc].progList[i].prog && venList[j].reservedProg[k].cong == cong){
-                                    cout << venList[j].name << " " << venList[j].location << " " << venList[j].type << " " << venList[j].capacity << endl;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    if (current == nullptr) {
+        cout << "-1\nError" << endl;
         return;
     }
 
-   void showPrograms(const string cong){
-        //finding congregation
-        int foundc = -1;
-        for (int i = 0; i < congList.size(); i++){
-            if (congList[i].cong == cong) {
-                foundc = i;
-                break;
+    // Check if venue is present in any congregation's programs
+    for (Congregation* cong = congregationHead; cong != nullptr; cong = cong->next) {
+        for (Program* prog = cong->programList; prog != nullptr; prog = prog->next) {
+            for (Venue* venue = prog->venueList; venue != nullptr; venue = venue->next) {
+                if (venue->name == name && venue->country == country) {
+                    cout << "-1\nError" << endl;
+                    return;
+                }
             }
         }
-        if (foundc == -1){
-            cout << "-1\nError" << endl;
-            return;
-        }
+    }
 
-        //number of programs
-        cout << congList[foundc].progList.size() << endl;
-        //printing the programs
-        for (int i = 0; i < congList[foundc].progList.size(); i++){
-            cout << congList[foundc].progList[i].type << " " << congList[foundc].progList[i].prog << " " << congList[foundc].progList[i].startDate << " " << congList[foundc].progList[i].endDate << endl;
-        }
+    // Remove venue from venueList
+    if (prev == nullptr) {
+        venueList = current->next;
+    } else {
+        prev->next = current->next;
+    }
+    delete current;
+
+    cout << "0" << endl;
+}
+
+void showReservedVenues(string cong)
+{
+    // Check if congregation exists
+    Congregation* cong_ptr = findCongregation(cong);
+    if (cong_ptr == nullptr) {
+        cout << "-1\nError" << endl;
         return;
     }
 
-};
+    // Count and print the number of programs
+    int program_count = 0;
+    Program* current_program = cong_ptr->programList;
+    while (current_program != nullptr) {
+        program_count++;
+        current_program = current_program->next;
+    }
+    cout << program_count << endl;
+    // Print details of each program and its venues
+    current_program = cong_ptr->programList;
+    while (current_program != nullptr) {
+        // Count and print the number of venues for this program
+        int venue_count = 0;
+        Venue* current_venue = current_program->venueList;
+        while (current_venue != nullptr) {
+            venue_count++;
+            current_venue = current_venue->next;
+        }
+        cout << current_program->name << " " << current_program->type << " " << venue_count << endl;
+
+        // Print details of each venue for this program
+        current_venue = current_program->venueList;
+        while (current_venue != nullptr) {
+            cout << current_venue->name << " " << current_venue->location << " " << current_venue->type << " " << current_venue->capacity << endl;
+            current_venue = current_venue->next;
+        }
+
+        current_program = current_program->next;
+    }
+}
+
+
+
+void deleteProgram(string cong, string prog) {
+    // Check if congregation exists
+    Congregation* cong_ptr = findCongregation(cong);
+    if (cong_ptr == nullptr) {
+        cout << "-1\nError" << endl;
+        return;
+    }
+
+    Program* prev = nullptr;
+    Program* current = cong_ptr->programList;
+
+    while (current != nullptr) {
+        if (current->name == prog) {
+            if (current->venueList == nullptr) {
+                // Program found and its venueList is empty, delete it
+                if (prev == nullptr) {
+                    cong_ptr->programList = current->next;
+                } else {
+                    prev->next = current->next;
+                }
+                delete current;
+                cout << "0" << endl;
+                return;
+            } else {
+                // Program found but its venueList is not empty
+                cout << "-1\nError" << endl;
+                return;
+            }
+        }
+        prev = current;
+        current = current->next;
+    }
+
+    // Program not found
+    cout << "-1\nError" << endl;
+}
+
+void showPrograms( string cong) {
+    // Check if congregation exists
+    Congregation* cong_ptr = findCongregation(cong);
+    if (cong_ptr == nullptr) {
+        cout << "-1\nError" << endl;
+        return;
+    }
+
+    // Count and print the number of programs
+    int count = 0;
+    Program* current = cong_ptr->programList;
+    while (current != nullptr) {
+        count++;
+        current = current->next;
+    }
+    cout << count << endl;
+
+    // Print details of each program
+    current = cong_ptr->programList;
+    while (current != nullptr) {
+        cout << current->type << " " << current->name << " " << current->startDate << " " << current->endDate << endl;
+        current = current->next;
+    }
+}
 
 
 int main() {
     //for the whole line of input
     string input;
     Extractor E;
-    ScheduleManager SM;
     while (getline(cin, input)) {
         //for the individual words
         string cmd;
@@ -813,7 +821,7 @@ int main() {
                 continue;
             }
 
-            SM.callAddCong(cong, type, startDate, endDate);
+            addCongregation(cong, type, startDate, endDate);
         }
 
         else if (cmd == "deleteCongregation"){
@@ -827,12 +835,12 @@ int main() {
                 continue;
             }
 
-            SM.callDelCong(cong);
+            deleteCongregation(cong);
 
         }
         
         else if (cmd == "showCongregations"){
-            SM.showCongregation();
+            showCongregation();
         }
 
         else if (cmd == "addProgram"){
@@ -873,7 +881,7 @@ int main() {
                 continue;
             }
 
-            SM.callAddProgram(cong, type, prog, startDate, endDate);
+            addProgram(cong, prog,type, startDate, endDate);
         }
 
         else if (cmd == "deleteProgram"){
@@ -889,7 +897,7 @@ int main() {
                 continue;
             }
 
-            SM.deleteProgram(cong, prog);
+            deleteProgram(cong, prog);
         }
 
         else if (cmd == "showPrograms"){
@@ -903,7 +911,7 @@ int main() {
                 continue;
             }
 
-            SM.showPrograms(cong);
+            showPrograms(cong);
         }
 
         else if (cmd == "addVenue"){
@@ -924,7 +932,7 @@ int main() {
                 continue;
             }
 
-            SM.callAddVenue(name, loc, type, cap, addr, city, state, postal, country);
+            addVenue(name, loc, type, city, state, postal, country, cap);
         }
 
         else if (cmd == "deleteVenue"){
@@ -940,7 +948,7 @@ int main() {
                 continue;
             }
 
-            SM.deleteVenue(name, country);
+            deleteVenue(name, country);
 
         }
 
@@ -960,8 +968,8 @@ int main() {
             }
 
             E.getaddrshowvenues(location, &city, &state, &postal, &country);
-
-            SM.callShowVenues(city, state, postal, country, type);
+            if(type=="")showVenues(city, state, country,postal);
+            else showVenues(city, state, country, postal, type);
         }
 
         else if (cmd == "reserveVenue"){
@@ -981,7 +989,7 @@ int main() {
                 continue;
             }
 
-            SM.reserveVenue(name, country, cong, prog);
+            reserveVenue(name, country, cong, prog);
         }
 
         else if (cmd == "freeVenue"){
@@ -1001,7 +1009,7 @@ int main() {
                 continue;
             }
 
-            SM.freeVenue(name, country, cong, prog);
+            freeVenue(name, country, cong, prog);
         }
 
         else if (cmd == "showReserved"){
@@ -1015,7 +1023,7 @@ int main() {
                 continue;
             }
 
-            SM.showReservedVenues(cong);
+            showReservedVenues(cong);
         }
     
         else{
